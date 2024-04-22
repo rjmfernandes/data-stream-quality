@@ -63,8 +63,8 @@ echo "Enter a prefix value as 'rfernandes_':"
 read prefix_value
 confluent login
 CC_API_KEY_SECRET=`confluent api-key create --resource cloud --description "API for terraform"`
-CC_API_KEY=`echo $CC_API_KEY_SECRET| grep 'API Key'|sed s/'.*| '//g|sed s/' .*'//g`
-CC_API_SECRET=`echo $CC_API_KEY_SECRET| grep 'API Secret'|sed s/'.*| '//g|sed s/' .*'//g`
+CC_API_KEY=`echo "$CC_API_KEY_SECRET"| grep 'API Key'|sed s/'.*| '//g|sed s/' .*'//g`
+CC_API_SECRET=`echo "$CC_API_KEY_SECRET"| grep 'API Secret'|sed s/'.*| '//g|sed s/' .*'//g`
 cat > $PWD/terraform/terraform.tfvars <<EOF
 confluent_cloud_api_key = "$CC_API_KEY"
 confluent_cloud_api_secret = "$CC_API_SECRET"
@@ -79,7 +79,7 @@ cc_kafka_cluster=`terraform output -json | jq -r .cc_kafka_cluster.value`
 cd ..
 confluent environment use $cc_hands_env
 CC_FLINK_COMP_POOL=`confluent flink compute-pool create my-compute-pool --cloud aws --region eu-central-1 --max-cfu 10`
-cc_flink_pool=`echo $CC_FLINK_COMP_POOL| grep 'ID'|sed s/'.*| '//g|sed s/' .*'//g`
+cc_flink_pool=`echo "$CC_FLINK_COMP_POOL"| grep 'ID'|sed s/'.*| '//g|sed s/' .*'//g`
 confluent flink compute-pool use $cc_flink_pool
 ```
 
