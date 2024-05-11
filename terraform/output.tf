@@ -62,3 +62,8 @@ output "ClientSecret" {
   value       = confluent_api_key.clients_kafka_cluster_key.secret
   sensitive = true
 }
+
+output "FlinkComputePool" {
+  description = "CC Flink Compute Pool ID"
+  value       = resource.confluent_flink_compute_pool.my_compute_pool.id
+}
