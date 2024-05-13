@@ -281,12 +281,9 @@ END;
 ## Create Problems
 
 Generate some issues to show up on your check discrepancies query... 
-
-A good way is just by stopping some of the insert Flink SQL queries and restarting them. 
-
-And/or stopping your connectors and restarting after. 
-
-You may even try to delete a topic completely and after creating it again, with corresponding restart of process for populating the topic, just as any other processes that were reading from that topic and would have been affected.
+- A good way is just by stopping some of the insert Flink SQL queries and restarting them. 
+- And/or stopping your connectors and restarting after. 
+- You may even try to delete a topic completely and after creating it again, with corresponding restart of process for populating the topic, just as any other processes that were reading from that topic and would have been affected.
 
 # Important Notes about the Terraform Flink SQL Jobs Changes
 
