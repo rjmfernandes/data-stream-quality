@@ -2,7 +2,7 @@ The initial terraform is based on: https://github.com/rjmfernandes/flink-cc-auto
 
 # Intro 
 
-Data Stream Quality here is understood as the quality of our Data Stream Processing. Different but can also be considered as going beyonf just the Data Quality of our Steam Data (check https://github.com/rjmfernandes/confluent-data-contract for Data Quality discussion). 
+Data Stream Quality here is understood as the quality of our Data Stream Processing. Different but can also be considered as going beyond just the Data Quality of our Steam Data (check https://github.com/tomasalmeida/confluent-data-contract for Data Quality discussion). 
 
 Here we will validate the quality or health of our stream processing through specific dimensions data objects (topics/tables containing aggregates) associated with the original sources and by-products or results of our Stream Processing jobs. Typically through comparison between dimensions/aggregateds sitting before and after each corresponding stream processing. 
 
