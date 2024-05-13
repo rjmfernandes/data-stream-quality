@@ -621,7 +621,7 @@ FROM
   );
 ```
 
-- Cause we want to have the **partial aggregations** history for every new incoming event we use the `OVER ... RANGE` part. 
+- Cause we want to have the **partial aggregations** history ([Over Aggregation](https://nightlies.apache.org/flink/flink-docs-master/docs/dev/table/sql/queries/over-agg/)) for every new incoming event we use the `OVER ... RANGE` part. 
 - We use 1 day as aggregation period here cause:
     - first "this is a demo"
     - second (and for the same reason) for keeping everything simple and small we are using the default retention period of 7 days only (so we ain't gonna have 1 year of data)
