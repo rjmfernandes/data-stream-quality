@@ -1,4 +1,4 @@
-The initial terraform is based on: https://github.com/rjmfernandes/flink-cc-automated
+The initial terraform is based on: https://github.com/griga23/shoe-store
 
 - [Intro](#intro)
 - [Setup](#setup)
@@ -58,6 +58,8 @@ confluent flink compute-pool use $cc_flink_pool
 Please check whether the terraform execution went without errors.
 
 # Flink SQL
+
+For running the Flink SQL jobs here is in fact easier to use the Confluent Cloud UI but in any case the shell may still be useful specially for troubleshooting if necessary.
 
 Now you can check in Confluent Cloud UI all connectors have been deployed as well the Flink Compute Pool and the long running Flink SQL jobs. You can also execute the Flink Shell:
 
@@ -350,35 +352,15 @@ END;
 ## Create Problems
 
 Generate some issues to show up on your check discrepancies query... 
-
-For example you can go to the Flink Statements and look for Running ones, and stop the one populating with `INSERT INTO` the table `shoe_order_customer`. It should be the third one counting from the bootom (one of the terraform `tf-` deployed ones).
-
-After you stop you can wait 1 minute or so and execute manually the same statement back again from Flink SQL Workspace:
-
-```sql
-INSERT INTO shoe_order_customer 
-SELECT 
-  order_id, 
-  product_id, 
-  shoe_orders.customer_id, 
-  first_name, 
-  last_name, 
-  email, 
-  shoe_orders.`$rowtime` 
-FROM 
-  shoe_orders 
-  INNER JOIN shoe_customers_keyed 
-    FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` 
-    ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
-```
-
-Now check back your long running queries for discrepancies. If you are "lucky" you should probably see some popping up in at least one of them.
+- A good way is just by stopping some of the insert Flink SQL queries and restarting them. 
+- And/or stopping your connectors and restarting after. 
+- You may even try to delete a topic completely and after creating it again, with corresponding restart of process for populating the topic, just as any other processes that were reading from that topic and would have been affected.
 
 # Important Notes about the Terraform Flink SQL Jobs Changes
 
 *If you want to be able to validate what you do, do it in a way that allows the validation after.*
 
-In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied (maybe too much?) on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
+In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
 
 It's also good to remember the original project purpose was an introduction to Flink SQL and intentionally tried to keep some things simpler. What basically doesnt work that well for us when we want to have streaming processes possible to be validated as here.
 
@@ -415,7 +397,7 @@ CREATE TABLE shoe_order_customer(
 ```
 
 There are some relevant changes:
--  We store the customer_id cause we want to be able to have this as aggregated dimension for later comparison between points (remember the customer data itself mauy change but not its id...).
+- We store the customer_id cause we want to be able to have this as aggregated dimension for later comparison between points (remember the customer data itself mauy change but not its id...).
 - We use as watermark a table field (in general this strategy corresponds to use an event time for watermark although not exactly here as we will see)
 - We don't use retract as changelog.mode. We want the events of our streaming jobs not to overwrite each other so we can always have them available for building our aggregates to compare with same periods of time in other parts of our streaming job chain. We are adding here a 5 second as example for the time allowed to wait for late out of order events. 
 
