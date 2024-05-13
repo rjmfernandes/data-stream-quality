@@ -549,4 +549,4 @@ terraform destroy -auto-approve
 cd ..
 ```
 
-There could be a conflict destroying everything with our Tags. In this case destroy again via terraform.
+There could be a conflict destroying everything with our Tags. For example if you recreated connectors while testing you may need to delete those from the Cloud UI first. And after destroy again via terraform.
