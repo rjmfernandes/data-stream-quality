@@ -1,5 +1,21 @@
 The initial terraform is based on: https://github.com/rjmfernandes/flink-cc-automated
 
+- [Intro](#intro)
+- [Setup](#setup)
+- [Flink SQL](#flink-sql)
+- [Data Stream Quality with Flink SQL](#data-stream-quality-with-flink-sql)
+  - [Orders to Order\_Customer](#orders-to-order_customer)
+  - [Order\_Customer to Order\_Customer\_Product](#order_customer-to-order_customer_product)
+  - [Order\_Customer\_Product and Loyalty\_Level](#order_customer_product-and-loyalty_level)
+  - [Note on Promotions Topic](#note-on-promotions-topic)
+  - [Create Problems](#create-problems)
+- [Important Notes about the Terraform Flink SQL Jobs Changes](#important-notes-about-the-terraform-flink-sql-jobs-changes)
+  - [Order\_Customer Table](#order_customer-table)
+  - [Order\_Customer\_Product table](#order_customer_product-table)
+  - [Loyalty\_Levels Table](#loyalty_levels-table)
+- [Costs of this Confluent Cloud](#costs-of-this-confluent-cloud)
+- [Destroy the infrastructure](#destroy-the-infrastructure)
+
 # Intro 
 
 Data Stream Quality here is understood as the quality of our Data Stream Processing. Different but can also be considered as going beyond just the Data Quality of our Steam Data (check https://github.com/tomasalmeida/confluent-data-contract for Data Quality discussion). 
