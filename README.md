@@ -276,7 +276,7 @@ HAVING
 END;
 ```
 
-In such cases it becomes pratically impossible to validate agains other dimension points the result of the streaming job, and whatever validation needed has to be part of the streaming job implementation itself.
+- In such cases it becomes pratically impossible to validate against other dimension points the result of the streaming job, and whatever validation needed has most likely to be part of the streaming job implementation itself.
 
 ## Create Problems
 
