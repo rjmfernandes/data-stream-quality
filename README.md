@@ -79,9 +79,9 @@ confluent flink compute-pool describe
 
 ## Orders to Order_Customer
 
-Now we start really implementing our Stream data Quality validations.
+Now we start really implementing our Stream Data Quality validations.
 
-Let's start by creating a table associated with the aggreagtes of our source topic `shoe_orders`:
+Let's start by creating a table associated with the aggregates of our source topic `shoe_orders` (populated by a source connector):
 
 ```sql
 CREATE TABLE dimensions_orders(
@@ -94,19 +94,19 @@ CREATE TABLE dimensions_orders(
   );
 ```
 
-And after populating our diomensions table columns with our aggregateds from the source topic:
+And after populating our dimensions table columns with our aggregateds from the source topic:
 
 ```sql
 INSERT INTO dimensions_orders
-  SELECT
-window_start,
- window_end,
- COUNT(distinct customer_id) AS customer_events,
-  COUNT(distinct product_id) AS product_events,
-  COUNT( order_id) as order_events
-FROM TABLE(
-   TUMBLE(TABLE shoe_orders, DESCRIPTOR(`$rowtime`), INTERVAL '1' MINUTES))
-GROUP BY window_start,window_end;
+    SELECT
+    window_start,
+    window_end,
+    COUNT(distinct customer_id) AS customer_events,
+    COUNT(distinct product_id) AS product_events,
+    COUNT( order_id) as order_events
+    FROM TABLE(
+    TUMBLE(TABLE shoe_orders, DESCRIPTOR(`$rowtime`), INTERVAL '1' MINUTES))
+    GROUP BY window_start,window_end;
 ```
 
 We are creating aggregates per time windows so that when validating we can have information about the time periods things can be going wrong.
@@ -124,19 +124,19 @@ CREATE TABLE dimensions_order_customer(
   );
 ```
 
-And again as before populate from the product topic of our first stream job process:
+And again as before, populate from the sink topic of our first stream job process:
 
 ```sql
 INSERT INTO dimensions_order_customer
-SELECT
-window_start,
- window_end,
- COUNT(distinct customer_id) AS customer_events,
-  COUNT(distinct product_id) AS product_events,
-  COUNT( order_id) as order_events
-FROM TABLE(
-   TUMBLE(TABLE shoe_order_customer, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-GROUP BY window_start,window_end;
+    SELECT
+    window_start,
+    window_end,
+    COUNT(distinct customer_id) AS customer_events,
+    COUNT(distinct product_id) AS product_events,
+    COUNT( order_id) as order_events
+    FROM TABLE(
+    TUMBLE(TABLE shoe_order_customer, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
+    GROUP BY window_start,window_end;
 ```
 
 We can start checking for any discrepancies by executing:
@@ -152,11 +152,9 @@ OR dimensions_orders.product_events <> dimensions_order_customer.product_events
 OR dimensions_orders.order_events <> dimensions_order_customer.order_events;
 ````
 
-We are comparing here each dimension between both dimension tables and checking if any are not exactly equal. 
-
-You could also be populating another topic with those results and maybe have notification alerts associated with new entries corresponding to detected discrepancies. 
-
-In some cases any discrepancy will have meaning (as here) and will require investigation, while in other use cases you may just be interested in big discrepancies maybe filtered with percentages, etc.
+- We are comparing here each dimension between both dimension tables and checking if any are not exactly equal. 
+- You could also be populating another topic with those results and maybe have notification alerts associated with new entries corresponding to detected discrepancies. 
+- In some cases any discrepancy will have meaning (as here) and will require investigation, while in other use cases you may just be interested in big discrepancies maybe filtered with percentages, etc.
 
 ## Order_Customer to Order_Customer_Product
 
