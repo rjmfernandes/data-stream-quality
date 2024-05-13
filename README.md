@@ -460,13 +460,27 @@ Again for the same reasons as before.
 Before we had:
 
 ```sql
-CREATE TABLE shoe_loyalty_levels(email STRING,total BIGINT,rewards_level STRING,PRIMARY KEY (email) NOT ENFORCED) WITH ('kafka.partitions' = '1');
+CREATE TABLE shoe_loyalty_levels(
+  email STRING, 
+  total BIGINT, 
+  rewards_level STRING, 
+  PRIMARY KEY (email) NOT ENFORCED
+) WITH ('kafka.partitions' = '1');
 ```
 
 And now we have:
 
 ```sql
-CREATE TABLE shoe_loyalty_levels(customer_id STRING,total BIGINT,rewards_level STRING,ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL,WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append','kafka.partitions' = '1');
+CREATE TABLE shoe_loyalty_levels(
+  customer_id STRING, 
+  total BIGINT, 
+  rewards_level STRING, 
+  ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL, 
+  WATERMARK FOR ts AS ts - INTERVAL '5' SECOND
+) WITH (
+  'changelog.mode' = 'append', 'kafka.partitions' = '1'
+);
+
 ```
 
 - Although we loose the products and order information by the nature of this stream process and resulting data, we want to keep at least the customer_id for the validation purposes. We don't consider the email relevant since the customer may change its email but for the sake of the loyalty level calculation in fact we should probably ignore it.
