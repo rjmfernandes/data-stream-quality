@@ -175,18 +175,18 @@ And populate:
 
 ```sql
 INSERT INTO dimensions_order_customer_product
-SELECT
-window_start,
- window_end,
- COUNT(distinct customer_id) AS customer_events,
-  COUNT(distinct product_id) AS product_events,
-  COUNT( order_id) as order_events
-FROM TABLE(
-   TUMBLE(TABLE shoe_order_customer_product, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-GROUP BY window_start,window_end;
+    SELECT
+    window_start,
+    window_end,
+    COUNT(distinct customer_id) AS customer_events,
+    COUNT(distinct product_id) AS product_events,
+    COUNT( order_id) as order_events
+    FROM TABLE(
+    TUMBLE(TABLE shoe_order_customer_product, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
+    GROUP BY window_start,window_end;
 ```
 
-We can now again check for discrepancies with point before (after the first join and used as source for this second join):
+We can now again check for discrepancies with dimensions topic/table before:
 
 ```sql
 select dimensions_order_customer.order_window_start,dimensions_order_customer.order_window_end, 
@@ -199,11 +199,9 @@ OR dimensions_order_customer.product_events <> dimensions_order_customer_product
 OR dimensions_order_customer.order_events <> dimensions_order_customer_product.order_events;
 ```
 
-It's pretty much the same as before and you may have noticed that we are comparing so far always consecutive points but technically there is no reason why you could not compare with further apart points in the streaming process chain. 
-
-(As long as the dimension points share really comparable aggregateds. You need to know something about what your streaming jobs do to data to understand what aggregates you can build and to which extent they are comparable with other dimensions aggregated elsewhere in your streaming processes jobs chain.) 
-
-Its in general a good practice though, to have the comparison between points as consecutive as possible, in order that if a problem is found we can understand where most likely is happening and with which streaming processes is associated.
+- It's pretty much the same as before and you may have noticed that we are comparing so far always consecutive points but technically there is no reason why you could not compare with further apart points in the streaming process chain. 
+- As long as the dimension points share really comparable aggregateds. You need to know something about what your streaming jobs do to data to understand what aggregates you can build and to which extent they are comparable with other dimensions aggregated elsewhere in your streaming processes jobs chain.
+- It's in general a good practice though, to have the comparison between points as consecutive as possible, in order that if a problem is found we can understand where most likely is happening and with which streaming processes is associated.
 
 ## Order_Customer_Product and Loyalty_Level
 
