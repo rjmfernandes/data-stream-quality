@@ -360,7 +360,7 @@ Generate some issues to show up on your check discrepancies query...
 
 *If you want to be able to validate what you do, do it in a way that allows the validation after.*
 
-In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied (maybe too much?) on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
+In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
 
 It's also good to remember the original project purpose was an introduction to Flink SQL and intentionally tried to keep some things simpler. What basically doesnt work that well for us when we want to have streaming processes possible to be validated as here.
 
@@ -397,7 +397,7 @@ CREATE TABLE shoe_order_customer(
 ```
 
 There are some relevant changes:
--  We store the customer_id cause we want to be able to have this as aggregated dimension for later comparison between points (remember the customer data itself mauy change but not its id...).
+- We store the customer_id cause we want to be able to have this as aggregated dimension for later comparison between points (remember the customer data itself mauy change but not its id...).
 - We use as watermark a table field (in general this strategy corresponds to use an event time for watermark although not exactly here as we will see)
 - We don't use retract as changelog.mode. We want the events of our streaming jobs not to overwrite each other so we can always have them available for building our aggregates to compare with same periods of time in other parts of our streaming job chain. We are adding here a 5 second as example for the time allowed to wait for late out of order events. 
 
