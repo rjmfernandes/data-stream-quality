@@ -291,6 +291,8 @@ In here we have changed (in some cases quite considerably) the original Flink SQ
 
 This is an important point to remember: *If you want to be able to validate what you do, do it in a way that allows the validation after.*
 
+It's also good to remember the original project purpose was an introduction to Flink SQL and intentionally tried to keep some things simpler. What basically doesnt work that well for us when we want to have streaming processes possible to be validated as here.
+
 Here we list those changes considering their relevance. Also from the point of view of reference of building streaming jobs in Flink SQL that allows us to keep data events history and later validation.
 
 ## Order_Customer Table
@@ -366,7 +368,7 @@ FROM
 ```
 
 As you see the major changes are:
-- We are in fact using the `$rowtime`for the "event time" ts field. The reason for not using the original order's `ts` field is that those come with an uncontextualized long past date (2021) that would make very hard for us to understand what is going on in a demo as here (also in general real time streaming is about events happening now and not 3 years ago). But is also true that this way we are bypassing in these tests some issues that may be related with out of order late events. In any case we setup our tables to allow in general 5 seconds for that.
+- We are in fact using the `$rowtime`for the "event time" ts field. The reason for not using the original order's `ts` field is that those come with an uncontextualized long past date (2021) that would make very hard for us to understand what is going on in a demo as here (also in general real time streaming is about events happening now and not 3 years ago). But is also true that this way we are maybe bypassing in these tests some issues that may be related with out of order late events. In any case we setup our tables to allow in general 5 seconds for that.
 - We are also using temporary joins (the `FOR SYSTEM_TIME AS OF` part) considering we dont use any longer a retracted table.
 
 ## Order_Customer_Product table
