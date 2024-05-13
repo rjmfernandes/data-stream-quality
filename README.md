@@ -413,13 +413,43 @@ CREATE TABLE shoe_order_customer_product(
 The query to populate the table before:
 
 ```sql
-INSERT INTO shoe_order_customer_product (order_id,first_name,last_name,email,brand,`model`,sale_price,rating) SELECT order_id,first_name,last_name,email,brand,`model`,sale_price,rating FROM shoe_order_customer INNER JOIN shoe_products_keyed ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
+INSERT INTO shoe_order_customer_product (
+  order_id, first_name, last_name, email, 
+  brand, `model`, sale_price, rating
+) 
+SELECT 
+  order_id, 
+  first_name, 
+  last_name, 
+  email, 
+  brand, 
+  `model`, 
+  sale_price, 
+  rating 
+FROM 
+  shoe_order_customer 
+  INNER JOIN shoe_products_keyed ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
 ```
 
 Has been changed to:
 
 ```sql
-INSERT INTO shoe_order_customer_product SELECT order_id,shoe_order_customer.product_id,shoe_order_customer.customer_id,first_name,last_name,email,brand,`model`,sale_price,rating,ts FROM shoe_order_customer INNER JOIN shoe_products_keyed FOR SYSTEM_TIME AS OF shoe_order_customer.ts ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
+INSERT INTO shoe_order_customer_product 
+SELECT 
+  order_id, 
+  shoe_order_customer.product_id, 
+  shoe_order_customer.customer_id, 
+  first_name, 
+  last_name, 
+  email, 
+  brand, 
+  `model`, 
+  sale_price, 
+  rating, 
+  ts 
+FROM 
+  shoe_order_customer 
+  INNER JOIN shoe_products_keyed FOR SYSTEM_TIME AS OF shoe_order_customer.ts ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
 ```
 
 Again for the same reasons as before.
