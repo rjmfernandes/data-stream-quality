@@ -298,7 +298,12 @@ Here we list those changes considering their relevance. Also from the point of v
 The original creation of the `shoe_order_customer` table was the following:
 
 ```sql
-CREATE TABLE shoe_order_customer(order_id INT,product_id STRING,first_name STRING,last_name STRING,email STRING) WITH ('changelog.mode' = 'retract', 'kafka.partitions' = '1');
+CREATE TABLE shoe_order_customer(
+  order_id INT, product_id STRING, first_name STRING, 
+  last_name STRING, email STRING
+) WITH (
+  'changelog.mode' = 'retract', 'kafka.partitions' = '1'
+);
 ```
 
 We have changed to:
