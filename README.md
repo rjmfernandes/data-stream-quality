@@ -422,7 +422,7 @@ FROM
 
 As you see the major changes are:
 - We are in fact using the `$rowtime`for the "event time" ts field. The reason for not using the original order's `ts` field is that those come with an uncontextualized long past date (2021) that would make very hard for us to understand what is going on in a demo as here (also in general real time streaming is about events happening now and not 3 years ago). But is also true that this way we are maybe bypassing in these tests some issues that may be related with out of order late events. In any case we setup our tables to allow in general 5 seconds for that.
-- We are also using temporary joins (the `FOR SYSTEM_TIME AS OF` part) considering we dont use any longer a retracted table.
+- We are also using **temporary joins** (the `FOR SYSTEM_TIME AS OF` part) considering we dont use any longer a retracted table.
 
 ## Order_Customer_Product table
 
