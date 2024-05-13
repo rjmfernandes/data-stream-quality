@@ -3,7 +3,7 @@ resource "confluent_flink_compute_pool" "my_compute_pool" {
   display_name = "${var.use_prefix}-pool"
   cloud        = var.cc_cloud_provider
   region       = var.cc_cloud_region
-  max_cfu      = 10
+  max_cfu      = 20
 
   environment {
     id = confluent_environment.cc_handson_env.id

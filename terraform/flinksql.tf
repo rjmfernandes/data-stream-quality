@@ -196,7 +196,7 @@ resource "confluent_flink_statement" "create_shoe_order_customer" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "CREATE TABLE shoe_order_customer(order_id INT,product_id STRING,first_name STRING,last_name STRING,email STRING) WITH ('changelog.mode' = 'retract', 'kafka.partitions' = '1');"
+  statement  = "CREATE TABLE shoe_order_customer(order_id INT,product_id STRING,customer_id STRING,first_name STRING,last_name STRING,email STRING,ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL,WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append','kafka.partitions' = '1');"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
@@ -234,7 +234,7 @@ resource "confluent_flink_statement" "insert_shoe_order_customer" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "INSERT INTO shoe_order_customer (order_id,product_id,first_name,last_name,email) SELECT order_id,product_id,first_name,last_name,email FROM shoe_orders INNER JOIN shoe_customers_keyed ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;"
+  statement  = "INSERT INTO shoe_order_customer SELECT order_id,product_id,shoe_orders.customer_id,first_name,last_name,email,shoe_orders.`$rowtime` FROM shoe_orders INNER JOIN shoe_customers_keyed FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
@@ -282,7 +282,7 @@ resource "confluent_flink_statement" "create_shoe_order_customer_product" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "CREATE TABLE shoe_order_customer_product(order_id INT,first_name STRING,last_name STRING,email STRING,brand STRING,`model` STRING,sale_price INT,rating DOUBLE) WITH ('changelog.mode' = 'retract', 'kafka.partitions' = '1');"
+  statement  = "CREATE TABLE shoe_order_customer_product(order_id INT,product_id STRING,customer_id STRING,first_name STRING,last_name STRING,email STRING,brand STRING,`model` STRING,sale_price INT,rating DOUBLE,ts TIMESTAMP(3),WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append', 'kafka.partitions' = '1');"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
@@ -320,7 +320,7 @@ resource "confluent_flink_statement" "insert_shoe_order_customer_product" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "INSERT INTO shoe_order_customer_product (order_id,first_name,last_name,email,brand,`model`,sale_price,rating) SELECT order_id,first_name,last_name,email,brand,`model`,sale_price,rating FROM shoe_order_customer INNER JOIN shoe_products_keyed ON shoe_order_customer.product_id = shoe_products_keyed.product_id;"
+  statement  = "INSERT INTO shoe_order_customer_product SELECT order_id,shoe_order_customer.product_id,shoe_order_customer.customer_id,first_name,last_name,email,brand,`model`,sale_price,rating,ts FROM shoe_order_customer INNER JOIN shoe_products_keyed FOR SYSTEM_TIME AS OF shoe_order_customer.ts ON shoe_order_customer.product_id = shoe_products_keyed.product_id;"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
@@ -369,7 +369,7 @@ resource "confluent_flink_statement" "create_shoe_loyalty_levels" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "CREATE TABLE shoe_loyalty_levels(email STRING,total BIGINT,rewards_level STRING,PRIMARY KEY (email) NOT ENFORCED) WITH ('kafka.partitions' = '1');"
+  statement  = "CREATE TABLE shoe_loyalty_levels(customer_id STRING,total BIGINT,rewards_level STRING,ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL,WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append','kafka.partitions' = '1');"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
@@ -407,7 +407,7 @@ resource "confluent_flink_statement" "insert_shoe_loyalty_levels" {
   principal {
     id = confluent_service_account.clients.id
   }
-  statement  = "INSERT INTO shoe_loyalty_levels(email,total,rewards_level) SELECT email,SUM(sale_price) AS total,CASE WHEN SUM(sale_price) > 80000000 THEN 'GOLD' WHEN SUM(sale_price) > 7000000 THEN 'SILVER' WHEN SUM(sale_price) > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level FROM shoe_order_customer_product GROUP BY email;"
+  statement  = "INSERT INTO shoe_loyalty_levels SELECT customer_id, total, CASE WHEN total > 80000000 THEN 'GOLD' WHEN total > 7000000 THEN 'SILVER' WHEN total > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level,ts FROM(SELECT customer_id,SUM(sale_price) OVER (PARTITION BY customer_id ORDER BY ts RANGE BETWEEN INTERVAL '1' DAY PRECEDING AND CURRENT ROW) AS total, ts FROM shoe_order_customer_product);"
   properties = {
     "sql.current-catalog"  : confluent_environment.cc_handson_env.display_name
     "sql.current-database" : confluent_kafka_cluster.cc_kafka_cluster.display_name
