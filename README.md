@@ -349,7 +349,18 @@ FROM
 We changed to:
 
 ```sql
-INSERT INTO shoe_order_customer SELECT order_id,product_id,shoe_orders.customer_id,first_name,last_name,email,shoe_orders.`$rowtime` FROM shoe_orders INNER JOIN shoe_customers_keyed FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
+INSERT INTO shoe_order_customer 
+SELECT 
+  order_id, 
+  product_id, 
+  shoe_orders.customer_id, 
+  first_name, 
+  last_name, 
+  email, 
+  shoe_orders.`$rowtime` 
+FROM 
+  shoe_orders 
+  INNER JOIN shoe_customers_keyed FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
 ```
 
 As you see the major changes are:
