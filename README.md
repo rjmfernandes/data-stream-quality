@@ -495,7 +495,8 @@ INSERT INTO shoe_loyalty_levels(email, total, rewards_level)
 SELECT 
   email, 
   SUM(sale_price) AS total, 
-  CASE WHEN SUM(sale_price) > 80000000 THEN 'GOLD' WHEN SUM(sale_price) > 7000000 THEN 'SILVER' WHEN SUM(sale_price) > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level 
+  CASE WHEN SUM(sale_price) > 80000000 THEN 'GOLD' WHEN SUM(sale_price) > 7000000 
+  THEN 'SILVER' WHEN SUM(sale_price) > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level 
 FROM 
   shoe_order_customer_product 
 GROUP BY 
@@ -509,7 +510,8 @@ INSERT INTO shoe_loyalty_levels
 SELECT 
   customer_id, 
   total, 
-  CASE WHEN total > 80000000 THEN 'GOLD' WHEN total > 7000000 THEN 'SILVER' WHEN total > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level, 
+  CASE WHEN total > 80000000 THEN 'GOLD' WHEN total > 7000000 
+  THEN 'SILVER' WHEN total > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level, 
   ts 
 FROM 
   (
