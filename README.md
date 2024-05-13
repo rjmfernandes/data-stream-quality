@@ -376,13 +376,25 @@ As you see the major changes are:
 The original creation of the `shoe_order_customer_product` table was the following:
 
 ```sql
-CREATE TABLE shoe_order_customer_product(order_id INT,first_name STRING,last_name STRING,email STRING,brand STRING,`model` STRING,sale_price INT,rating DOUBLE) WITH ('changelog.mode' = 'retract', 'kafka.partitions' = '1');
+CREATE TABLE shoe_order_customer_product(
+  order_id INT, first_name STRING, last_name STRING, 
+  email STRING, brand STRING, `model` STRING, 
+  sale_price INT, rating DOUBLE
+) WITH (
+  'changelog.mode' = 'retract', 'kafka.partitions' = '1'
+);
 ```
 
 We changed to:
 
 ```sql
-CREATE TABLE shoe_order_customer_product(order_id INT,product_id STRING,customer_id STRING,first_name STRING,last_name STRING,email STRING,brand STRING,`model` STRING,sale_price INT,rating DOUBLE,ts TIMESTAMP(3),WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append', 'kafka.partitions' = '1');
+CREATE TABLE shoe_order_customer_product(
+  order_id INT, first_name STRING, last_name STRING, 
+  email STRING, brand STRING, `model` STRING, 
+  sale_price INT, rating DOUBLE
+) WITH (
+  'changelog.mode' = 'retract', 'kafka.partitions' = '1'
+);
 ```
 
 - Again we keep product_id (as we did for customer_id) considering dimension keys to be used for validation purposes later.
