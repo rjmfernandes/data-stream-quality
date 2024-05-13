@@ -340,9 +340,9 @@ Generate some issues to show up on your check discrepancies query...
 
 # Important Notes about the Terraform Flink SQL Jobs Changes
 
-In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for the validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied (maybe too much?) on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
+*If you want to be able to validate what you do, do it in a way that allows the validation after.*
 
-This is an important point to remember: *If you want to be able to validate what you do, do it in a way that allows the validation after.*
+In here we have changed (in some cases quite considerably) the original Flink SQL jobs deployed by the original project. The reason is that for validating a streaming job we need to know what our stream job is doing to data at each time. The original project relied (maybe too much?) on primary key based tables that would make impossible to know what the streaming job is doing to data at each point in time.
 
 It's also good to remember the original project purpose was an introduction to Flink SQL and intentionally tried to keep some things simpler. What basically doesnt work that well for us when we want to have streaming processes possible to be validated as here.
 
