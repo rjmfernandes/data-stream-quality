@@ -309,7 +309,18 @@ CREATE TABLE shoe_order_customer(
 We have changed to:
 
 ```sql
-CREATE TABLE shoe_order_customer(order_id INT,product_id STRING,customer_id STRING,first_name STRING,last_name STRING,email STRING,ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL,WATERMARK FOR ts AS ts - INTERVAL '5' SECOND) WITH ('changelog.mode' = 'append','kafka.partitions' = '1');
+CREATE TABLE shoe_order_customer(
+  order_id INT, 
+  product_id STRING, 
+  customer_id STRING, 
+  first_name STRING, 
+  last_name STRING, 
+  email STRING, 
+  ts TIMESTAMP(3) WITH LOCAL TIME ZONE NOT NULL, 
+  WATERMARK FOR ts AS ts - INTERVAL '5' SECOND
+) WITH (
+  'changelog.mode' = 'append', 'kafka.partitions' = '1'
+);
 ```
 
 There are two relevant changes:
