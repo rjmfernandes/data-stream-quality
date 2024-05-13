@@ -51,13 +51,13 @@ confluent flink shell --database $cc_kafka_cluster
 
 You can list the tables;
 
-```
+```sql
 SHOW TABLES;
 ```
 
 And query the shoe_loyalty_levels for example:
 
-```
+```sql
 SELECT * from shoe_loyalty_levels;
 ```
 
@@ -97,16 +97,24 @@ CREATE TABLE dimensions_orders(
 And after populating our dimensions table columns with our aggregateds from the source topic:
 
 ```sql
-INSERT INTO dimensions_orders
-    SELECT
-    window_start,
-    window_end,
-    COUNT(distinct customer_id) AS customer_events,
-    COUNT(distinct product_id) AS product_events,
-    COUNT( order_id) as order_events
-    FROM TABLE(
-    TUMBLE(TABLE shoe_orders, DESCRIPTOR(`$rowtime`), INTERVAL '1' MINUTES))
-    GROUP BY window_start,window_end;
+INSERT INTO dimensions_orders 
+SELECT 
+  window_start, 
+  window_end, 
+  COUNT(distinct customer_id) AS customer_events, 
+  COUNT(distinct product_id) AS product_events, 
+  COUNT(order_id) as order_events 
+FROM 
+  TABLE(
+    TUMBLE(
+      TABLE shoe_orders, 
+      DESCRIPTOR(`$rowtime`), 
+      INTERVAL '1' MINUTES
+    )
+  ) 
+GROUP BY 
+  window_start, 
+  window_end;
 ```
 
 We are creating aggregates per time windows so that when validating we can have information about the time periods things can be going wrong.
@@ -127,30 +135,46 @@ CREATE TABLE dimensions_order_customer(
 And again as before, populate from the sink topic of our first stream job process:
 
 ```sql
-INSERT INTO dimensions_order_customer
-    SELECT
-    window_start,
-    window_end,
-    COUNT(distinct customer_id) AS customer_events,
-    COUNT(distinct product_id) AS product_events,
-    COUNT( order_id) as order_events
-    FROM TABLE(
-    TUMBLE(TABLE shoe_order_customer, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-    GROUP BY window_start,window_end;
+INSERT INTO dimensions_order_customer 
+SELECT 
+  window_start, 
+  window_end, 
+  COUNT(distinct customer_id) AS customer_events, 
+  COUNT(distinct product_id) AS product_events, 
+  COUNT(order_id) as order_events 
+FROM 
+  TABLE(
+    TUMBLE(
+      TABLE shoe_order_customer, 
+      DESCRIPTOR(ts), 
+      INTERVAL '1' MINUTES
+    )
+  ) 
+GROUP BY 
+  window_start, 
+  window_end;
 ```
 
 We can start checking for any discrepancies by executing:
 
 ```sql
-select dimensions_orders.order_window_start,dimensions_orders.order_window_end, 
-dimensions_orders.customer_events as o_customers,dimensions_order_customer.customer_events as oc_customers,
-dimensions_orders.product_events as o_products,dimensions_order_customer.product_events as oc_products,
-dimensions_orders.order_events as o_orders,dimensions_order_customer.order_events as oc_orders
-from dimensions_orders INNER JOIN dimensions_order_customer ON dimensions_orders.order_window_start = dimensions_order_customer.order_window_start
-WHERE dimensions_orders.customer_events <> dimensions_order_customer.customer_events
-OR dimensions_orders.product_events <> dimensions_order_customer.product_events
-OR dimensions_orders.order_events <> dimensions_order_customer.order_events;
-````
+select 
+  dimensions_orders.order_window_start, 
+  dimensions_orders.order_window_end, 
+  dimensions_orders.customer_events as o_customers, 
+  dimensions_order_customer.customer_events as oc_customers, 
+  dimensions_orders.product_events as o_products, 
+  dimensions_order_customer.product_events as oc_products, 
+  dimensions_orders.order_events as o_orders, 
+  dimensions_order_customer.order_events as oc_orders 
+from 
+  dimensions_orders 
+  INNER JOIN dimensions_order_customer ON dimensions_orders.order_window_start = dimensions_order_customer.order_window_start 
+WHERE 
+  dimensions_orders.customer_events <> dimensions_order_customer.customer_events 
+  OR dimensions_orders.product_events <> dimensions_order_customer.product_events 
+  OR dimensions_orders.order_events <> dimensions_order_customer.order_events;
+```
 
 - We are comparing here each dimension between both dimension tables and checking if any are not exactly equal. 
 - You could also be populating another topic with those results and maybe have notification alerts associated with new entries corresponding to detected discrepancies. 
@@ -174,29 +198,45 @@ CREATE TABLE dimensions_order_customer_product(
 And populate:
 
 ```sql
-INSERT INTO dimensions_order_customer_product
-    SELECT
-    window_start,
-    window_end,
-    COUNT(distinct customer_id) AS customer_events,
-    COUNT(distinct product_id) AS product_events,
-    COUNT( order_id) as order_events
-    FROM TABLE(
-    TUMBLE(TABLE shoe_order_customer_product, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-    GROUP BY window_start,window_end;
+INSERT INTO dimensions_order_customer_product 
+SELECT 
+  window_start, 
+  window_end, 
+  COUNT(distinct customer_id) AS customer_events, 
+  COUNT(distinct product_id) AS product_events, 
+  COUNT(order_id) as order_events 
+FROM 
+  TABLE(
+    TUMBLE(
+      TABLE shoe_order_customer_product, 
+      DESCRIPTOR(ts), 
+      INTERVAL '1' MINUTES
+    )
+  ) 
+GROUP BY 
+  window_start, 
+  window_end;
 ```
 
 We can now again check for discrepancies with dimensions topic/table before:
 
 ```sql
-select dimensions_order_customer.order_window_start,dimensions_order_customer.order_window_end, 
-dimensions_order_customer.customer_events as oc_customers,dimensions_order_customer_product.customer_events as ocp_customers,
-dimensions_order_customer.product_events as oc_products,dimensions_order_customer_product.product_events as ocp_products,
-dimensions_order_customer.order_events as oc_orders,dimensions_order_customer_product.order_events as ocp_orders
-from dimensions_order_customer INNER JOIN dimensions_order_customer_product ON dimensions_order_customer.order_window_start = dimensions_order_customer_product.order_window_start
-WHERE dimensions_order_customer.customer_events <> dimensions_order_customer_product.customer_events
-OR dimensions_order_customer.product_events <> dimensions_order_customer_product.product_events
-OR dimensions_order_customer.order_events <> dimensions_order_customer_product.order_events;
+select 
+  dimensions_order_customer.order_window_start, 
+  dimensions_order_customer.order_window_end, 
+  dimensions_order_customer.customer_events as oc_customers, 
+  dimensions_order_customer_product.customer_events as ocp_customers, 
+  dimensions_order_customer.product_events as oc_products, 
+  dimensions_order_customer_product.product_events as ocp_products, 
+  dimensions_order_customer.order_events as oc_orders, 
+  dimensions_order_customer_product.order_events as ocp_orders 
+from 
+  dimensions_order_customer 
+  INNER JOIN dimensions_order_customer_product ON dimensions_order_customer.order_window_start = dimensions_order_customer_product.order_window_start 
+WHERE 
+  dimensions_order_customer.customer_events <> dimensions_order_customer_product.customer_events 
+  OR dimensions_order_customer.product_events <> dimensions_order_customer_product.product_events 
+  OR dimensions_order_customer.order_events <> dimensions_order_customer_product.order_events;
 ```
 
 - It's pretty much the same as before and you may have noticed that we are comparing so far always consecutive points but technically there is no reason why you could not compare with further apart points in the streaming process chain. 
@@ -219,14 +259,22 @@ CREATE TABLE dimensions_loyalty_level(
 Populated by:
 
 ```sql
-INSERT INTO dimensions_loyalty_level
-    SELECT
-    window_start,
-    window_end,
-    COUNT(distinct customer_id) AS customer_events
-    FROM TABLE(
-    TUMBLE(TABLE shoe_loyalty_levels, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-    GROUP BY window_start,window_end;
+INSERT INTO dimensions_loyalty_level 
+SELECT 
+  window_start, 
+  window_end, 
+  COUNT(distinct customer_id) AS customer_events 
+FROM 
+  TABLE(
+    TUMBLE(
+      TABLE shoe_loyalty_levels, 
+      DESCRIPTOR(ts), 
+      INTERVAL '1' MINUTES
+    )
+  ) 
+GROUP BY 
+  window_start, 
+  window_end;
 ```
 
 - This query is simpler than the previous dimension tables populating queries cause in `shoe_loyalty_levels` topic we miss part of the extra information (products and orders) by the definition of the data in that topic is only associated with customers.
@@ -234,11 +282,16 @@ INSERT INTO dimensions_loyalty_level
 Now for comparing with point immediately before:
 
 ```sql
-
-select dimensions_order_customer_product.order_window_start,dimensions_order_customer_product.order_window_end, 
-dimensions_order_customer_product.customer_events as ocp_customers,dimensions_loyalty_level.customer_events as ll_customers
-from dimensions_order_customer_product INNER JOIN dimensions_loyalty_level ON dimensions_order_customer_product.order_window_start = dimensions_loyalty_level.order_window_start
-WHERE dimensions_order_customer_product.customer_events <> dimensions_loyalty_level.customer_events;
+select 
+  dimensions_order_customer_product.order_window_start, 
+  dimensions_order_customer_product.order_window_end, 
+  dimensions_order_customer_product.customer_events as ocp_customers, 
+  dimensions_loyalty_level.customer_events as ll_customers 
+from 
+  dimensions_order_customer_product 
+  INNER JOIN dimensions_loyalty_level ON dimensions_order_customer_product.order_window_start = dimensions_loyalty_level.order_window_start 
+WHERE 
+  dimensions_order_customer_product.customer_events <> dimensions_loyalty_level.customer_events;
 ```
 
 ## Note on Promotions Topic
