@@ -291,7 +291,7 @@ In here we have changed (in some cases quite considerably) the original Flink SQ
 
 This is an important point to remember: *If you want to be able to validate what you do, do it in a way that allows the validation after.*
 
-Here we list those changes considering their relevance also from the point of view of building streaming jobs in Flink SQL that avoid loosing the history/time factor.
+Here we list those changes considering their relevance. Also from the point of view of reference of building streaming jobs in Flink SQL that allows us to keep data events history and later validation.
 
 ## Order_Customer Table
 
