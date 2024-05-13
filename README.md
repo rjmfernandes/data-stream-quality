@@ -360,7 +360,9 @@ SELECT
   shoe_orders.`$rowtime` 
 FROM 
   shoe_orders 
-  INNER JOIN shoe_customers_keyed FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
+  INNER JOIN shoe_customers_keyed 
+    FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` 
+    ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
 ```
 
 As you see the major changes are:
