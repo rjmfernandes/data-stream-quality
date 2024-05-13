@@ -539,7 +539,7 @@ FROM
 
 # Costs of this Confluent Cloud
 
-The lab execution does not consume much money but you should count at least to be more costly than the original project (due to the new validations queries associated with the new dimension tables/topics and the comparison queries between points). If you create the cluster one day before, we recommend to pause all connectors.
+The lab execution does not consume much money but you should count at least to be more costly than the original project, due to the new validations queries associated with the new dimension tables/topics and the comparison queries between points. (We have in fact increased Max CFUs for the Compute Pool from 10 to 20.) If you create the cluster one day before, we recommend to pause all connectors.
 
 # Destroy the infrastructure
 
