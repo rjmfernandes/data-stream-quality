@@ -59,6 +59,8 @@ Please check whether the terraform execution went without errors.
 
 # Flink SQL
 
+For running the Flink SQL jobs here is in fact easier to use the Confluent Cloud UI but in any case the shell may still be useful specially for troubleshooting if necessary.
+
 Now you can check in Confluent Cloud UI all connectors have been deployed as well the Flink Compute Pool and the long running Flink SQL jobs. You can also execute the Flink Shell:
 
 ```shell
