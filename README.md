@@ -539,7 +539,7 @@ CREATE TABLE shoe_loyalty_levels(
 - Although we loose the products and order information by the nature of this stream process and resulting data, we want to keep at least the customer_id for the validation purposes. Also we don't consider the email relevant since the customer may change its email.
 - Again we want to have the historical information so we keep the "event time" as field again to be able to validate.
 - Same reason as usual on why we change to append changelog.mode.
-- And of course no primary keys since we want the historical information in fact to be able to validate. (Having the history of events is by the way one of the nice reasons to use a streaming process in place of just standard databases.)
+- And of course no primary keys since we want the historical information in fact to be able to validate. (Having the history of events is by the way one of the nice reasons to use a streaming architecture in place of just standard databases.)
 
 Finally the population query in this case was originally:
 
