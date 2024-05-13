@@ -1,4 +1,4 @@
-For details check: https://github.com/rjmfernandes/flink-cc-automated
+The initial terraform is based on: https://github.com/rjmfernandes/flink-cc-automated
 
 # Intro 
 
