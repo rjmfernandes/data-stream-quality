@@ -323,7 +323,7 @@ CREATE TABLE shoe_order_customer(
 );
 ```
 
-There are two relevant changes:
+There are some relevant changes:
 -  We store the customer_id cause we want to be able to have this as aggregated dimension for later comparison between points (remember the customer data itself mauy change but not its id...).
 - We use as watermark a table field (in general this strategy corresponds to use an event time for watermark although not exactly here as we will see)
 - We don't use retract as changelog.mode. We want the events of our streaming jobs not to overwrite each other so we can always have them available for building our aggregates to compare with same periods of time in other parts of our streaming job chain. We are adding here a 5 second as example for the time allowed to wait for late out of order events. 
@@ -331,7 +331,19 @@ There are two relevant changes:
 The original populating query of the table was:
 
 ```sql
-INSERT INTO shoe_order_customer (order_id,product_id,first_name,last_name,email) SELECT order_id,product_id,first_name,last_name,email FROM shoe_orders INNER JOIN shoe_customers_keyed ON shoe_orders.customer_id = shoe_customers_keyed.customer_id
+INSERT INTO shoe_order_customer (
+  order_id, product_id, first_name, 
+  last_name, email
+) 
+SELECT 
+  order_id, 
+  product_id, 
+  first_name, 
+  last_name, 
+  email 
+FROM 
+  shoe_orders 
+  INNER JOIN shoe_customers_keyed ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
 ```
 
 We changed to:
