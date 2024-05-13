@@ -1,4 +1,4 @@
-The initial terraform is based on: https://github.com/rjmfernandes/flink-cc-automated
+The initial terraform is based on: https://github.com/griga23/shoe-store
 
 - [Intro](#intro)
 - [Setup](#setup)
