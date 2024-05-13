@@ -529,12 +529,13 @@ FROM
   );
 ```
 
-- Cause we want to have the partial aggregations history for every new incoming event we use the `OVER ... RANGE` part. We use 1 day as aggregation period here cause:
+- Cause we want to have the partial aggregations history for every new incoming event we use the `OVER ... RANGE` part. 
+- We use 1 day as aggregation period here cause:
     - first "this is a demo"
     - second (and for the same reason) for keeping everything simple and small we are using the default retention period of 7 days only (so we ain't gonna have 1 year of data)
     - also Flink in CC does not allow (yet) for time units longer than `DAY`
     - we could have used something like 365 days though and maybe would have been more reallistic... or not... these longer periods of times based aggregations may make sense in fact to be first consolidated outside of Kafka
-- We have made it into an overlapped query just for clarity reasons. So that total is calculated once and then after translated also into a `rewards_level`. Its not clear if doing this way could also have some performance benefits for the query itself. Our guess is that Flink would be anyway smart enough to understand it had calculated the sum already but doing this way also has the benefit of potentially making the query more readable... Although that is most certainly debatable.
+- We have made it into an overlapped query just for clarity reasons. So that total "is calculated only once" and then after translated also into a `rewards_level`. Its not clear if doing this way could also have some performance benefits for the query itself in Flink. Our guess is that Flink would be anyway most likely smart enough to understand it had calculated the sum already. But doing this way also has the benefit of potentially making the query more readable. Although that is also most certainly debatable.
 
 # Costs of this Confluent Cloud
 
