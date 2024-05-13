@@ -220,16 +220,16 @@ Populated by:
 
 ```sql
 INSERT INTO dimensions_loyalty_level
-SELECT
-window_start,
- window_end,
- COUNT(distinct customer_id) AS customer_events
-FROM TABLE(
-   TUMBLE(TABLE shoe_loyalty_levels, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
-GROUP BY window_start,window_end;
+    SELECT
+    window_start,
+    window_end,
+    COUNT(distinct customer_id) AS customer_events
+    FROM TABLE(
+    TUMBLE(TABLE shoe_loyalty_levels, DESCRIPTOR(ts), INTERVAL '1' MINUTES))
+    GROUP BY window_start,window_end;
 ```
 
-This query is simpler than the previous dimension tables populating queries cause in `shoe_loyalty_levels` topic we miss part of the extra information (products and orders) by the definition of the data in that topic is only associated with customers.
+- This query is simpler than the previous dimension tables populating queries cause in `shoe_loyalty_levels` topic we miss part of the extra information (products and orders) by the definition of the data in that topic is only associated with customers.
 
 Now for comparing with point immediately before:
 
@@ -246,9 +246,34 @@ WHERE dimensions_order_customer_product.customer_events <> dimensions_loyalty_le
 There is another final topic resulting from the terraform deployed Flink SQL jobs which is `shoe_promotions`. This topic is the result of a rather obscuring streaming logic (from the point of view of its result not sharing many common points with the entry data). For reference we share here:
 
 ```sql
-EXECUTE STATEMENT SET BEGIN INSERT INTO shoe_promotions SELECT email, 'next_free' AS promotion_name FROM shoe_order_customer_product WHERE brand = 'Jones-Stokes' GROUP BY email HAVING COUNT(*) % 10 = 0; 
-
-INSERT INTO shoe_promotions SELECT  email, 'bundle_offer' AS promotion_name FROM shoe_order_customer_product WHERE brand IN ('Braun-Bruen', 'Will Inc') GROUP BY email HAVING COUNT(DISTINCT brand) = 2 AND COUNT(brand) > 10; END;
+EXECUTE STATEMENT 
+SET 
+  BEGIN INSERT INTO shoe_promotions 
+SELECT 
+  email, 
+  'next_free' AS promotion_name 
+FROM 
+  shoe_order_customer_product 
+WHERE 
+  brand = 'Jones-Stokes' 
+GROUP BY 
+  email 
+HAVING 
+  COUNT(*) % 10 = 0;
+INSERT INTO shoe_promotions 
+SELECT 
+  email, 
+  'bundle_offer' AS promotion_name 
+FROM 
+  shoe_order_customer_product 
+WHERE 
+  brand IN ('Braun-Bruen', 'Will Inc') 
+GROUP BY 
+  email 
+HAVING 
+  COUNT(DISTINCT brand) = 2 
+  AND COUNT(brand) > 10;
+END;
 ```
 
 In such cases it becomes pratically impossible to validate agains other dimension points the result of the streaming job, and whatever validation needed has to be part of the streaming job implementation itself.
