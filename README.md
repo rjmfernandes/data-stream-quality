@@ -449,7 +449,8 @@ SELECT
   ts 
 FROM 
   shoe_order_customer 
-  INNER JOIN shoe_products_keyed FOR SYSTEM_TIME AS OF shoe_order_customer.ts ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
+  INNER JOIN shoe_products_keyed FOR SYSTEM_TIME AS OF shoe_order_customer.ts 
+  ON shoe_order_customer.product_id = shoe_products_keyed.product_id;
 ```
 
 Again for the same reasons as before.
