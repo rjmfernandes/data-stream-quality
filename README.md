@@ -491,13 +491,40 @@ CREATE TABLE shoe_loyalty_levels(
 Finally the population query in this case was originally:
 
 ```sql
-INSERT INTO shoe_loyalty_levels(email,total,rewards_level) SELECT email,SUM(sale_price) AS total,CASE WHEN SUM(sale_price) > 80000000 THEN 'GOLD' WHEN SUM(sale_price) > 7000000 THEN 'SILVER' WHEN SUM(sale_price) > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level FROM shoe_order_customer_product GROUP BY email;
+INSERT INTO shoe_loyalty_levels(email, total, rewards_level) 
+SELECT 
+  email, 
+  SUM(sale_price) AS total, 
+  CASE WHEN SUM(sale_price) > 80000000 THEN 'GOLD' WHEN SUM(sale_price) > 7000000 THEN 'SILVER' WHEN SUM(sale_price) > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level 
+FROM 
+  shoe_order_customer_product 
+GROUP BY 
+  email;
 ```
 
 Changed now to:
 
 ```sql
-INSERT INTO shoe_loyalty_levels SELECT customer_id, total, CASE WHEN total > 80000000 THEN 'GOLD' WHEN total > 7000000 THEN 'SILVER' WHEN total > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level,ts FROM(SELECT customer_id,SUM(sale_price) OVER (PARTITION BY customer_id ORDER BY ts RANGE BETWEEN INTERVAL '1' DAY PRECEDING AND CURRENT ROW) AS total, ts FROM shoe_order_customer_product);
+INSERT INTO shoe_loyalty_levels 
+SELECT 
+  customer_id, 
+  total, 
+  CASE WHEN total > 80000000 THEN 'GOLD' WHEN total > 7000000 THEN 'SILVER' WHEN total > 600000 THEN 'BRONZE' ELSE 'CLIMBING' END AS rewards_level, 
+  ts 
+FROM 
+  (
+    SELECT 
+      customer_id, 
+      SUM(sale_price) OVER (
+        PARTITION BY customer_id 
+        ORDER BY 
+          ts RANGE BETWEEN INTERVAL '1' DAY PRECEDING 
+          AND CURRENT ROW
+      ) AS total, 
+      ts 
+    FROM 
+      shoe_order_customer_product
+  );
 ```
 
 - Cause we want to have the partial aggregations history for every new incoming event we use the `OVER ... RANGE` part. We use 1 day as aggregation period here cause first "this is a demo", second (and for the same reason) for keeping everything simple and small we are using the default retention period of 7 days only, also Flink in CC does not allow (yet) for time units longer than `DAY`. We could have used something 365 days though and probably would have been more reallistic or not... These longer periods of times based aggregations may make sense to be first consolidated externally to Kafka.
