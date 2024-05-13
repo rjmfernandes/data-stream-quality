@@ -6,7 +6,7 @@ Data Stream Quality here is understood as the quality of our Data Stream Process
 
 Here we will validate the quality or health of our stream processing through specific dimensions data objects (topics/tables containing aggregates) associated with the original sources and by-products or results of our Stream Processing jobs. Typically through comparison between dimensions/aggregateds sitting before and after each corresponding stream processing. 
 
-Our stream processing jobs here as an example are also implemented with Flink SQL (deployed automatically with our terraform) but keep in mind that they could just as well have been implemented using any other technology, including Kafka Streams for example. The basic idea in this example project is that the data objects being validated as source and results of our stream processing are both Kafka topics and that the validation philosophy here would sit external to the process itself. In here we have done with Confluent Cloud Flink SQL.
+Our stream processing jobs here as an example are also implemented with Flink SQL (deployed automatically with our terraform) but keep in mind that they could just as well have been implemented using any other technology, including Kafka Streams for example. The basic idea in this example project is that the data objects being validated as source and results of our stream processing are both Kafka topics and that the validation would sit external to the process itself. In the example here we have implemented these validations with Confluent Cloud Flink SQL but again they could have used another data streaming technology using same philosophy.
 
 # Setup
 
