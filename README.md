@@ -350,29 +350,9 @@ END;
 ## Create Problems
 
 Generate some issues to show up on your check discrepancies query... 
-
-For example you can go to the Flink Statements and look for Running ones, and stop the one populating with `INSERT INTO` the table `shoe_order_customer`. It should be the third one counting from the bootom (one of the terraform `tf-` deployed ones).
-
-After you stop you can wait 1 minute or so and execute manually the same statement back again from Flink SQL Workspace:
-
-```sql
-INSERT INTO shoe_order_customer 
-SELECT 
-  order_id, 
-  product_id, 
-  shoe_orders.customer_id, 
-  first_name, 
-  last_name, 
-  email, 
-  shoe_orders.`$rowtime` 
-FROM 
-  shoe_orders 
-  INNER JOIN shoe_customers_keyed 
-    FOR SYSTEM_TIME AS OF shoe_orders.`$rowtime` 
-    ON shoe_orders.customer_id = shoe_customers_keyed.customer_id;
-```
-
-Now check back your long running queries for discrepancies. If you are "lucky" you should probably see some popping up in at least one of them.
+- A good way is just by stopping some of the insert Flink SQL queries and restarting them. 
+- And/or stopping your connectors and restarting after. 
+- You may even try to delete a topic completely and after creating it again, with corresponding restart of process for populating the topic, just as any other processes that were reading from that topic and would have been affected.
 
 # Important Notes about the Terraform Flink SQL Jobs Changes
 
